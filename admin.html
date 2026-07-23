@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Novara - Painel Admin</title>
+  <meta name="robots" content="noindex, nofollow">
+  <link rel="stylesheet" href="admin.css">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="icon" href="assets/logoNovara.png" type="image/png">
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+
+  <!-- Login Screen -->
+  <div class="login-screen" id="loginScreen">
+    <div class="login-card">
+      <img src="assets/logoNovara.png" alt="Novara" class="login-logo">
+      <h1 class="login-title">Painel Administrativo</h1>
+      <p class="login-subtitle">Acesse para gerenciar seus produtos</p>
+      <form class="login-form" id="loginForm">
+        <div class="form-group">
+          <label for="loginPassword">Senha</label>
+          <input type="password" id="loginPassword" placeholder="Digite a senha" required autocomplete="current-password">
+        </div>
+        <div class="login-error" id="loginError" style="display:none">Senha incorreta. Tente novamente.</div>
+        <button type="submit" class="btn btn--primary btn--md btn--full">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M18 8h-1V6c0-2.76-2.24-5-5-5S7 3.24 7 6v2H6c-1.1 0-2 .9-2 2v10c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2V10c0-1.1-.9-2-2-2zm-6 9c-1.1 0-2-.9-2-2s.9-2 2-2 2 .9 2 2-.9 2-2 2zm3.1-9H8.9V6c0-1.71 1.39-3.1 3.1-3.1 1.71 0 3.1 1.39 3.1 3.1v2z"/></svg>
+          Entrar
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dashboard" id="dashboard" style="display:none">
+
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+      <div class="sidebar__header">
+        <img src="assets/logoNovara.png" alt="Novara" class="sidebar__logo">
+        <span class="sidebar__brand">Novara</span>
+      </div>
+      <nav class="sidebar__nav">
+        <button class="sidebar__link active" data-section="products">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 5h-3v5.5c0 1.38-1.12 2.5-2.5 2.5S10 13.88 10 12.5s1.12-2.5 2.5-2.5c.57 0 1.08.19 1.5.51V5h4v2zM4 4h16v16H4V4z"/></svg>
+          Produtos
+        </button>
+        <button class="sidebar__link" data-section="config">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M19.14 12.94c.04-.3.06-.61.06-.94 0-.32-.02-.64-.07-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.05.3-.07.62-.07.94s.02.64.07.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg>
+          Configurações
+        </button>
+      </nav>
+      <button class="sidebar__logout" id="logoutBtn">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor"><path d="M17 7l-1.41 1.41L18.17 11H8v2h10.17l-2.58 2.58L17 17l5-5zM4 5h8V3H4c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h8v-2H4V5z"/></svg>
+        Sair
+      </button>
+    </aside>
+
+    <!-- Mobile Header -->
+    <div class="mobile-header" id="mobileHeader">
+      <button class="mobile-header__burger" id="mobileBurger">
+        <span></span><span></span><span></span>
+      </button>
+      <img src="assets/logoNovara.png" alt="Novara" class="mobile-header__logo">
+      <span class="mobile-header__title">Admin</span>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+      <!-- Products Section -->
+      <section class="admin-section" id="productsSection">
+        <div class="section-header-row">
+          <div>
+            <h2 class="section-title">Produtos</h2>
+            <p class="section-subtitle" id="productCount">Carregando...</p>
+          </div>
+          <button class="btn btn--primary" id="addProductBtn">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
+            Novo Produto
+          </button>
+        </div>
+        <div class="products-list" id="productsList">
+          <div class="loading-spinner">
+            <div class="spinner"></div>
+            <p>Carregando produtos...</p>
+          </div>
+        </div>
+        <div class="empty-state" id="productsEmpty" style="display:none">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M20 2H4c-1.1 0-2 .9-2 2v16c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-2 5h-3v5.5c0 1.38-1.12 2.5-2.5 2.5S10 13.88 10 12.5s1.12-2.5 2.5-2.5c.57 0 1.08.19 1.5.51V5h4v2zM4 4h16v16H4V4z"/></svg>
+          <h3>Nenhum produto cadastrado</h3>
+          <p>Clique em "Novo Produto" para adicionar o primeiro.</p>
+        </div>
+      </section>
+
+      <!-- Config Section -->
+      <section class="admin-section" id="configSection" style="display:none">
+        <h2 class="section-title">Configurações</h2>
+        <p class="section-subtitle">Gerencie as configurações da sua landing page.</p>
+        <form class="config-form" id="configForm">
+          <div class="config-card">
+            <h3 class="config-card__title">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              WhatsApp
+            </h3>
+            <p class="config-card__desc">Número que aparece nos botões da landing page.</p>
+            <div class="form-group">
+              <label for="whatsappNumber">Número com DDD</label>
+              <input type="text" id="whatsappNumber" placeholder="(11) 99999-9999" maxlength="15">
+              <span class="form-hint">Formato: (XX) XXXXX-XXXX</span>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <h3 class="config-card__title">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+              Imagem de Destaque (Hero)
+            </h3>
+            <p class="config-card__desc">Imagem principal ao lado do título na landing page.</p>
+            <div class="form-group">
+              <label>Imagem Atual</label>
+              <div class="hero-preview" id="heroPreview">
+                <img src="" alt="Preview" id="heroPreviewImg" style="display:none">
+                <div class="hero-preview__empty" id="heroPreviewEmpty">
+                  <svg viewBox="0 0 24 24" width="32" height="32" fill="currentColor"><path d="M21 19V5c0-1.1-.9-2-2-2H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2zM8.5 13.5l2.5 3.01L14.5 12l4.5 6H5l3.5-4.5z"/></svg>
+                  <span>Nenhuma imagem configurada</span>
+                </div>
+              </div>
+              <div class="upload-area upload-area--small" id="heroUploadArea">
+                <input type="file" id="heroFileInput" accept="image/*" style="display:none">
+                <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg>
+                <p>Clique para trocar a imagem</p>
+                <span class="upload-hint">JPG, PNG ou WebP. Recomendado: 800x800px.</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="config-card">
+            <h3 class="config-card__title">
+              <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor"><path d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 14H4V8l8 5 8-5v10zm-8-7L4 6h16l-8 5z"/></svg>
+              Badges Flutuantes
+            </h3>
+            <p class="config-card__desc">Textos dos cards flutuantes sobre a imagem de destaque.</p>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="heroBadge1Text">Badge 1 (canto superior)</label>
+                <input type="text" id="heroBadge1Text" placeholder="Alta Precisão" maxlength="30">
+              </div>
+              <div class="form-group">
+                <label for="heroBadge2Text">Badge 2 (canto inferior)</label>
+                <input type="text" id="heroBadge2Text" placeholder="Design Exclusivo" maxlength="30">
+              </div>
+            </div>
+          </div>
+          <div class="config-actions">
+            <button type="submit" class="btn btn--primary btn--md" id="saveConfigBtn">
+              <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+              Salvar Configurações
+            </button>
+          </div>
+        </form>
+      </section>
+
+    </main>
+  </div>
+
+  <!-- Product Modal -->
+  <div class="modal" id="productModal">
+    <div class="modal__overlay" id="modalOverlay"></div>
+    <div class="modal__content">
+      <div class="modal__header">
+        <h3 class="modal__title" id="modalTitle">Novo Produto</h3>
+        <button class="modal__close" id="modalClose" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <form class="modal__form" id="productForm">
+        <div class="form-group">
+          <label for="productTitle">Título *</label>
+          <input type="text" id="productTitle" placeholder="Nome do produto" required>
+        </div>
+        <div class="form-group">
+          <label for="productDesc">Descrição</label>
+          <textarea id="productDesc" rows="3" placeholder="Descrição do produto"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Fotos</label>
+          <div class="upload-area" id="uploadArea">
+            <input type="file" id="fileInput" multiple accept="image/*" style="display:none">
+            <svg viewBox="0 0 24 24" width="40" height="40" fill="currentColor"><path d="M19 7v2.99s-1.99.01-2 0V7h-3s.01-1.99 0-2h3V2h2v3h3v2h-3zm-3 4V8h-3V5H5c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h12c1.1 0 2-.9 2-2v-8h-3zM5 19l3-4 2 3 3-4 4 5H5z"/></svg>
+            <p>Arraste imagens aqui ou <span class="upload-link">clique para selecionar</span></p>
+            <span class="upload-hint">JPG, PNG ou WebP. Máx. 5MB por imagem.</span>
+          </div>
+          <div class="upload-preview" id="uploadPreview"></div>
+        </div>
+        <div class="form-row">
+          <div class="form-group form-group--small">
+            <label for="productOrder">Ordem</label>
+            <input type="number" id="productOrder" value="0" min="0">
+          </div>
+          <div class="form-group form-group--toggle">
+            <label>Ativo</label>
+            <label class="toggle">
+              <input type="checkbox" id="productActive" checked>
+              <span class="toggle__slider"></span>
+            </label>
+          </div>
+        </div>
+        <div class="modal__actions">
+          <button type="button" class="btn btn--outline btn--md" id="modalCancel">Cancelar</button>
+          <button type="submit" class="btn btn--primary btn--md" id="modalSave">
+            <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M17 3H5c-1.11 0-2 .9-2 2v14c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+            Salvar
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Delete Confirmation Modal -->
+  <div class="modal" id="deleteModal">
+    <div class="modal__overlay" id="deleteOverlay"></div>
+    <div class="modal__content modal__content--small">
+      <div class="modal__header">
+        <h3 class="modal__title">Excluir Produto</h3>
+        <button class="modal__close" id="deleteModalClose" aria-label="Fechar">
+          <svg viewBox="0 0 24 24" width="24" height="24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
+      </div>
+      <div class="modal__body">
+        <div class="delete-warning">
+          <svg viewBox="0 0 24 24" width="48" height="48" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg>
+        </div>
+        <p class="delete-text">Tem certeza que deseja excluir o produto <strong id="deleteProductName"></strong>?</p>
+        <p class="delete-subtext">Esta ação não pode ser desfeita. As imagens também serão removidas.</p>
+      </div>
+      <div class="modal__actions">
+        <button type="button" class="btn btn--outline btn--md" id="deleteCancelBtn">Cancelar</button>
+        <button type="button" class="btn btn--danger btn--md" id="deleteConfirmBtn">
+          <svg viewBox="0 0 24 24" width="18" height="18" fill="currentColor"><path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z"/></svg>
+          Excluir
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast Notification -->
+  <div class="toast" id="toast">
+    <div class="toast__icon" id="toastIcon"></div>
+    <span class="toast__message" id="toastMessage"></span>
+  </div>
+
+  <script src="firebase-config.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
