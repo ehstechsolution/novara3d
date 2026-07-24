@@ -37,7 +37,7 @@ function renderProductCard(product, whatsappNumber) {
   let imageHTML = '';
 
   if (fotos.length === 0) {
-    imageHTML = '<div class="product-card__placeholder"><svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="220" fill="#f0f4fa" rx="12"/><ellipse cx="150" cy="100" rx="40" ry="30" fill="none" stroke="#1a3a6e" stroke-width="1.5" opacity="0.2"/><text x="150" y="150" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#1a3a6e" opacity="0.25">Sem imagem</text></svg></div>';
+    imageHTML = '<div class="product-card__placeholder"><svg viewBox="0 0 300 220" xmlns="http://www.w3.org/2000/svg"><rect width="300" height="220" fill="#f0efe8" rx="12"/><ellipse cx="150" cy="100" rx="40" ry="30" fill="none" stroke="#2d3a1e" stroke-width="1.5" opacity="0.2"/><text x="150" y="150" text-anchor="middle" font-family="Inter, sans-serif" font-size="12" fill="#2d3a1e" opacity="0.25">Sem imagem</text></svg></div>';
   } else if (fotos.length === 1) {
     imageHTML = `<img src="${fotos[0]}" alt="${titulo}" class="product-card__img" loading="lazy">`;
   } else {
@@ -50,12 +50,15 @@ function renderProductCard(product, whatsappNumber) {
     imageHTML = `<div class="product-card__carousel" data-total="${fotos.length}"><div class="product-card__track">${slides}</div><button class="carousel-btn carousel-btn--prev" aria-label="Anterior">&#8249;</button><button class="carousel-btn carousel-btn--next" aria-label="Proximo">&#8250;</button><div class="carousel-dots">${dots}</div></div>`;
   }
 
+  const fotosJson = JSON.stringify(fotos).replace(/"/g, '&quot;');
+
   return `
-    <div class="product-card" data-id="${product.id}">
-      <div class="product-card__image">${imageHTML}</div>
+    <div class="product-card" data-id="${product.id}" data-fotos='${fotosJson}' data-titulo="${titulo.replace(/"/g, '&quot;')}" data-descricao="${descricao.replace(/"/g, '&quot;')}" data-walink="${waLink}">
+      <div class="product-card__image lightbox-trigger">${imageHTML}</div>
       <div class="product-card__body">
         <h3 class="product-card__name">${titulo}</h3>
         <p class="product-card__desc">${descricao}</p>
+        <button class="product-card__ver-mais lightbox-trigger" type="button">ver mais</button>
         <a href="${waLink}" class="btn btn--primary btn--sm" target="_blank" rel="noopener">
           ${WHATSAPP_ICON_SM} Solicitar no WhatsApp
         </a>

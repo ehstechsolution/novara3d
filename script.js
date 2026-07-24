@@ -144,6 +144,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       productsGrid.innerHTML = products.map(p => renderProductCard(p, whatsappNumber)).join('');
       initCarousels();
+      initVerMaisButtons();
+      initLightbox();
     }
   } catch (err) {
     console.error('Erro ao carregar produtos:', err);
@@ -155,3 +157,110 @@ document.addEventListener('DOMContentLoaded', async () => {
   initScrollAnimations();
 
 });
+
+// --- "Ver Mais" overflow detection ---
+function initVerMaisButtons() {
+  document.querySelectorAll('.product-card').forEach(card => {
+    const desc = card.querySelector('.product-card__desc');
+    const btn = card.querySelector('.product-card__ver-mais');
+    if (!desc || !btn) return;
+
+    if (desc.scrollHeight > desc.clientHeight + 1) {
+      btn.style.display = 'block';
+    }
+  });
+}
+
+// --- Product Lightbox ---
+function initLightbox() {
+  const lightbox = document.getElementById('lightbox');
+  const overlay = document.getElementById('lightboxOverlay');
+  const closeBtn = document.getElementById('lightboxClose');
+  const track = document.getElementById('lightboxTrack');
+  const dotsContainer = document.getElementById('lightboxDots');
+  const prevBtn = document.getElementById('lightboxPrev');
+  const nextBtn = document.getElementById('lightboxNext');
+  const titleEl = document.getElementById('lightboxTitle');
+  const descEl = document.getElementById('lightboxDesc');
+  const whatsappBtn = document.getElementById('lightboxWhatsApp');
+
+  let current = 0;
+  let total = 0;
+
+  function goTo(index) {
+    current = ((index % total) + total) % total;
+    track.style.transform = `translateX(-${current * 100}%)`;
+    dotsContainer.querySelectorAll('.lightbox__dot').forEach((d, i) => {
+      d.classList.toggle('active', i === current);
+    });
+  }
+
+  function openLightbox(card) {
+    const fotos = JSON.parse(card.dataset.fotos || '[]');
+    const titulo = card.dataset.titulo || '';
+    const descricao = card.dataset.descricao || '';
+    const waLink = card.dataset.walink || '#';
+
+    if (fotos.length === 0) return;
+
+    total = fotos.length;
+    current = 0;
+
+    track.innerHTML = fotos.map(url =>
+      `<img src="${url}" alt="${titulo}">`
+    ).join('');
+
+    dotsContainer.innerHTML = fotos.map((_, i) =>
+      `<button class="lightbox__dot${i === 0 ? ' active' : ''}" data-index="${i}"></button>`
+    ).join('');
+
+    titleEl.textContent = titulo;
+    descEl.textContent = descricao;
+    whatsappBtn.href = waLink;
+
+    lightbox.classList.add('open');
+    document.body.style.overflow = 'hidden';
+
+    prevBtn.style.display = total <= 1 ? 'none' : 'flex';
+    nextBtn.style.display = total <= 1 ? 'none' : 'flex';
+
+    dotsContainer.querySelectorAll('.lightbox__dot').forEach(dot => {
+      dot.addEventListener('click', () => goTo(parseInt(dot.dataset.index)));
+    });
+  }
+
+  function closeLightbox() {
+    lightbox.classList.remove('open');
+    document.body.style.overflow = '';
+  }
+
+  document.querySelectorAll('.lightbox-trigger').forEach(trigger => {
+    trigger.addEventListener('click', () => {
+      const card = trigger.closest('.product-card');
+      if (card) openLightbox(card);
+    });
+  });
+
+  closeBtn.addEventListener('click', closeLightbox);
+  overlay.addEventListener('click', closeLightbox);
+  prevBtn.addEventListener('click', () => goTo(current - 1));
+  nextBtn.addEventListener('click', () => goTo(current + 1));
+
+  document.addEventListener('keydown', (e) => {
+    if (!lightbox.classList.contains('open')) return;
+    if (e.key === 'Escape') closeLightbox();
+    if (e.key === 'ArrowLeft') goTo(current - 1);
+    if (e.key === 'ArrowRight') goTo(current + 1);
+  });
+
+  let touchStartX = 0;
+  lightbox.addEventListener('touchstart', e => {
+    touchStartX = e.changedTouches[0].screenX;
+  }, { passive: true });
+  lightbox.addEventListener('touchend', e => {
+    const diff = touchStartX - e.changedTouches[0].screenX;
+    if (Math.abs(diff) > 50) {
+      diff > 0 ? goTo(current + 1) : goTo(current - 1);
+    }
+  }, { passive: true });
+}
