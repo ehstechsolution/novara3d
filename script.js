@@ -2,6 +2,8 @@
    NOVARA - Landing Page Scripts
    ======================================== */
 
+let colorMap = {};
+
 document.addEventListener('DOMContentLoaded', async () => {
 
   // --- Header scroll effect ---
@@ -95,6 +97,11 @@ document.addEventListener('DOMContentLoaded', async () => {
       updateWhatsAppLinks(config.whatsappNumber);
     }
 
+    // Color map for tooltips
+    if (config && config.cores) {
+      config.cores.forEach(c => { colorMap[c.hex] = c.nome; });
+    }
+
     // Hero image
     if (config && config.heroImage) {
       const heroImg = document.getElementById('heroImage');
@@ -142,7 +149,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       const match = href.match(/wa\.me\/(\d+)/);
       const whatsappNumber = match ? match[1] : '5500000000000';
 
-      productsGrid.innerHTML = products.map(p => renderProductCard(p, whatsappNumber)).join('');
+      productsGrid.innerHTML = products.map(p => renderProductCard(p, whatsappNumber, colorMap)).join('');
       initCarousels();
       initVerMaisButtons();
       initLightbox();
@@ -181,6 +188,8 @@ function initLightbox() {
   const prevBtn = document.getElementById('lightboxPrev');
   const nextBtn = document.getElementById('lightboxNext');
   const titleEl = document.getElementById('lightboxTitle');
+  const priceEl = document.getElementById('lightboxPrice');
+  const colorsEl = document.getElementById('lightboxColors');
   const descEl = document.getElementById('lightboxDesc');
   const whatsappBtn = document.getElementById('lightboxWhatsApp');
 
@@ -215,6 +224,12 @@ function initLightbox() {
     ).join('');
 
     titleEl.textContent = titulo;
+    const preco = card.dataset.preco;
+    priceEl.textContent = preco ? `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}` : '';
+    const cores = JSON.parse(card.dataset.cores || '[]');
+    colorsEl.innerHTML = cores.length
+      ? cores.map(hex => `<span class="color-dot" style="background:${hex}" title="${colorMap[hex] || ''}"></span>`).join('')
+      : '';
     descEl.textContent = descricao;
     whatsappBtn.href = waLink;
 

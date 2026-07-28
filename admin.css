@@ -854,6 +854,214 @@ img {
 }
 
 /* ========================================
+   COLOR LIST
+   ======================================== */
+.color-list {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 20px;
+}
+
+.color-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  background: var(--color-off-white);
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--color-border);
+  transition: var(--transition);
+}
+
+.color-item--disabled {
+  opacity: 0.5;
+}
+
+.color-item__swatch {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(0,0,0,0.1);
+}
+
+.color-item__name {
+  flex: 1;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--color-text);
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.color-item__hex {
+  font-size: 0.8rem;
+  color: var(--color-text-light);
+  font-family: monospace;
+  flex-shrink: 0;
+}
+
+.color-item__toggle {
+  flex-shrink: 0;
+}
+
+.color-item__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-light);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.color-item__remove:hover {
+  background: var(--color-danger-bg);
+  color: var(--color-danger);
+}
+
+.color-item__restore {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  border: none;
+  background: transparent;
+  color: var(--color-text-light);
+  cursor: pointer;
+  transition: var(--transition);
+  flex-shrink: 0;
+}
+
+.color-item__restore:hover {
+  background: var(--color-success-bg);
+  color: var(--color-success);
+}
+
+.color-add {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.color-add input[type="text"] {
+  flex: 1;
+  padding: 10px 14px;
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  color: var(--color-text);
+  background: var(--color-white);
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  outline: none;
+  transition: var(--transition);
+}
+
+.color-add input[type="text"]:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(var(--color-primary-rgb), 0.1);
+}
+
+.color-add input[type="color"] {
+  width: 42px;
+  height: 42px;
+  padding: 2px;
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  background: var(--color-white);
+  flex-shrink: 0;
+}
+
+.color-add .btn {
+  flex-shrink: 0;
+}
+
+/* ========================================
+   COLOR CHECKBOXES (Product Form)
+   ======================================== */
+.color-checkboxes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.color-checkbox-item {
+  position: relative;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px 6px 6px;
+  border: 2px solid var(--color-border);
+  border-radius: 50px;
+  cursor: pointer;
+  transition: var(--transition);
+  user-select: none;
+  background: var(--color-white);
+}
+
+.color-checkbox-item:hover {
+  border-color: var(--color-primary-light);
+}
+
+.color-checkbox-item.selected {
+  border-color: var(--color-primary);
+  background: rgba(var(--color-primary-rgb), 0.06);
+}
+
+.color-checkbox-item input {
+  display: none;
+}
+
+.color-checkbox-item__swatch {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 1px solid rgba(0,0,0,0.1);
+}
+
+.color-checkbox-item__label {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--color-text);
+}
+
+.color-checkbox-item__check {
+  display: none;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  color: var(--color-primary);
+  flex-shrink: 0;
+}
+
+.color-checkbox-item.selected .color-checkbox-item__check {
+  display: flex;
+}
+
+@media (max-width: 768px) {
+  .color-checkboxes {
+    gap: 6px;
+  }
+
+  .color-checkbox-item {
+    padding: 6px 10px;
+  }
+}
+
+/* ========================================
    MODAL
    ======================================== */
 .modal {

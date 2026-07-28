@@ -35,11 +35,13 @@ document.addEventListener('DOMContentLoaded', () => {
   const productForm = document.getElementById('productForm');
   const productTitle = document.getElementById('productTitle');
   const productDesc = document.getElementById('productDesc');
+  const productPrice = document.getElementById('productPrice');
   const productOrder = document.getElementById('productOrder');
   const productActive = document.getElementById('productActive');
   const fileInput = document.getElementById('fileInput');
   const uploadArea = document.getElementById('uploadArea');
   const uploadPreview = document.getElementById('uploadPreview');
+  const colorCheckboxes = document.getElementById('colorCheckboxes');
   const deleteModal = document.getElementById('deleteModal');
   const deleteOverlay = document.getElementById('deleteOverlay');
   const deleteModalClose = document.getElementById('deleteModalClose');
@@ -69,6 +71,8 @@ document.addEventListener('DOMContentLoaded', () => {
   let deletingProductId = null;
   let toastTimer = null;
   let heroImageUrl = null;
+  let allColors = [];
+  let selectedColorHexes = [];
 
   // ==========================================
   // Auth
@@ -219,7 +223,7 @@ document.addEventListener('DOMContentLoaded', () => {
           </div>
           <div class="product-item__actions">
             <label class="toggle product-item__toggle">
-              <input type="checkbox" ${isActive ? 'checked' : ''} onchange="toggleProductActive('${product.id}', this.checked)">
+              <input type="checkbox" ${isActive ? 'checked' : ''} data-id="${product.id}">
               <span class="toggle__slider"></span>
             </label>
             <button class="product-item__btn" onclick="editProduct('${product.id}')" title="Editar">
@@ -233,6 +237,15 @@ document.addEventListener('DOMContentLoaded', () => {
     }).join('');
   }
 
+  // Toggle active via event delegation
+  productsList.addEventListener('change', (e) => {
+    const input = e.target;
+    if (input.matches('input[type="checkbox"][data-id]')) {
+      const id = input.dataset.id;
+      if (id) toggleProductActive(id, input.checked);
+    }
+  });
+
   // ==========================================
   // Products - Toggle Active
   // ==========================================
@@ -241,6 +254,7 @@ document.addEventListener('DOMContentLoaded', () => {
       await db.collection('products').doc(id).update({ ativo: active });
       const product = allProducts.find(p => p.id === id);
       if (product) product.ativo = active;
+      renderProducts();
       showToast(active ? 'Produto ativado' : 'Produto desativado');
     } catch (err) {
       console.error('Erro ao atualizar produto:', err);
@@ -258,9 +272,11 @@ document.addEventListener('DOMContentLoaded', () => {
     productForm.reset();
     productActive.checked = true;
     productOrder.value = '0';
+    productPrice.value = '';
     existingImages = [];
     pendingImages = [];
     uploadPreview.innerHTML = '';
+    renderColorCheckboxes();
     productModal.classList.add('open');
   });
 
@@ -272,12 +288,14 @@ document.addEventListener('DOMContentLoaded', () => {
     modalTitle.textContent = 'Editar Produto';
     productTitle.value = product.titulo || '';
     productDesc.value = product.descricao || '';
+    productPrice.value = product.preco ?? '';
     productOrder.value = product.ordem || 0;
     productActive.checked = product.ativo !== false;
 
     existingImages = [...(product.fotos || [])];
     pendingImages = [];
     renderUploadPreview();
+    renderColorCheckboxes(product.cores || []);
     productModal.classList.add('open');
   };
 
@@ -447,10 +465,19 @@ document.addEventListener('DOMContentLoaded', () => {
       const newImageUrls = await uploadAllPendingImages();
       const allImageUrls = [...existingImages, ...newImageUrls];
 
+      if (selectedColorHexes.length === 0) {
+        showToast('Selecione pelo menos uma cor', 'error');
+        saveBtn.disabled = false;
+        saveBtn.innerHTML = originalHTML;
+        return;
+      }
+
       const productData = {
         titulo: productTitle.value.trim(),
         descricao: productDesc.value.trim(),
+        preco: productPrice.value === '' ? 0 : parseFloat(productPrice.value),
         fotos: allImageUrls,
+        cores: selectedColorHexes,
         ativo: productActive.checked,
         ordem: parseInt(productOrder.value) || 0
       };
@@ -536,6 +563,8 @@ document.addEventListener('DOMContentLoaded', () => {
         heroImageUrl = data.heroImage || null;
         heroBadge1Text.value = data.heroBadge1 || '';
         heroBadge2Text.value = data.heroBadge2 || '';
+        allColors = data.cores || [];
+        renderColorList();
         updateHeroPreview();
       }
     } catch (err) {
@@ -585,6 +614,112 @@ document.addEventListener('DOMContentLoaded', () => {
     }
   });
 
+  // ==========================================
+  // Color Management
+  // ==========================================
+  function renderColorList() {
+    const list = document.getElementById('colorList');
+    if (allColors.length === 0) {
+      list.innerHTML = '<p style="color:var(--color-text-light);font-size:0.85rem;padding:8px 0;">Nenhuma cor cadastrada.</p>';
+      return;
+    }
+
+    list.innerHTML = allColors.map((color, index) => `
+      <div class="color-item ${!color.disponivel ? 'color-item--disabled' : ''}">
+        <span class="color-item__swatch" style="background:${color.hex}"></span>
+        <span class="color-item__name">${color.nome || 'Sem nome'}</span>
+        <span class="color-item__hex">${color.hex}</span>
+        <span class="color-item__toggle">
+          <label class="toggle">
+            <input type="checkbox" ${color.disponivel !== false ? 'checked' : ''} onchange="toggleColor(${index})">
+            <span class="toggle__slider"></span>
+          </label>
+        </span>
+        ${color.disponivel !== false
+          ? `<button type="button" class="color-item__remove" onclick="removeColor(${index})" title="Desabilitar cor">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+            </button>`
+          : `<button type="button" class="color-item__restore" onclick="toggleColor(${index})" title="Reativar cor">
+              <svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor"><path d="M17.65 6.35C16.2 4.9 14.21 4 12 4c-4.42 0-7.99 3.58-7.99 8s3.57 8 7.99 8c3.73 0 6.84-2.55 7.73-6h-2.08c-.82 2.33-3.04 4-5.65 4-3.31 0-6-2.69-6-6s2.69-6 6-6c1.66 0 3.14.69 4.22 1.78L13 11h7V4l-2.35 2.35z"/></svg>
+            </button>`
+        }
+      </div>
+    `).join('');
+  }
+
+  window.addColor = () => {
+    const nameInput = document.getElementById('newColorName');
+    const hexInput = document.getElementById('newColorHex');
+    const nome = nameInput.value.trim();
+    const hex = hexInput.value;
+
+    if (!nome) {
+      showToast('Digite um nome para a cor', 'error');
+      nameInput.focus();
+      return;
+    }
+
+    if (allColors.some(c => c.hex.toLowerCase() === hex.toLowerCase())) {
+      showToast('Essa cor já foi cadastrada', 'error');
+      return;
+    }
+
+    allColors.push({ nome, hex, disponivel: true });
+    renderColorList();
+    nameInput.value = '';
+    showToast('Cor adicionada');
+  };
+
+  window.toggleColor = (index) => {
+    allColors[index].disponivel = allColors[index].disponivel !== false ? false : true;
+    renderColorList();
+  };
+
+  window.removeColor = (index) => {
+    const color = allColors[index];
+    if (!color) return;
+    if (!confirm(`Tem certeza que deseja desabilitar a cor "${color.nome}"?\n\nEla não ficará mais disponível para novos produtos, mas continuará vinculada aos produtos existentes.`)) return;
+    allColors[index].disponivel = false;
+    renderColorList();
+    showToast(`Cor "${color.nome}" desabilitada`);
+  };
+
+  function renderColorCheckboxes(selectedHexes = []) {
+    selectedColorHexes = [...selectedHexes];
+    const availableColors = allColors.filter(c => c.disponivel !== false);
+
+    if (availableColors.length === 0) {
+      colorCheckboxes.innerHTML = '<p class="form-hint" style="margin:0">Nenhuma cor disponível. Cadastre cores na aba Configurações.</p>';
+      return;
+    }
+
+    colorCheckboxes.innerHTML = availableColors.map(color => {
+      const isSelected = selectedColorHexes.includes(color.hex);
+      return `
+        <label class="color-checkbox-item ${isSelected ? 'selected' : ''}" data-hex="${color.hex}">
+          <input type="checkbox" value="${color.hex}" ${isSelected ? 'checked' : ''}>
+          <span class="color-checkbox-item__swatch" style="background:${color.hex}"></span>
+          <span class="color-checkbox-item__label">${color.nome}</span>
+          <span class="color-checkbox-item__check">
+            <svg viewBox="0 0 24 24" width="14" height="14" fill="currentColor"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+          </span>
+        </label>`;
+    }).join('');
+
+    colorCheckboxes.querySelectorAll('.color-checkbox-item input').forEach(input => {
+      input.addEventListener('change', (e) => {
+        const item = e.target.closest('.color-checkbox-item');
+        item.classList.toggle('selected', e.target.checked);
+        const hex = e.target.value;
+        if (e.target.checked) {
+          if (!selectedColorHexes.includes(hex)) selectedColorHexes.push(hex);
+        } else {
+          selectedColorHexes = selectedColorHexes.filter(h => h !== hex);
+        }
+      });
+    });
+  }
+
   configForm.addEventListener('submit', async (e) => {
     e.preventDefault();
 
@@ -597,7 +732,8 @@ document.addEventListener('DOMContentLoaded', () => {
         whatsappNumber: whatsappNumber.value.trim(),
         heroImage: heroImageUrl || '',
         heroBadge1: heroBadge1Text.value.trim(),
-        heroBadge2: heroBadge2Text.value.trim()
+        heroBadge2: heroBadge2Text.value.trim(),
+        cores: allColors
       }, { merge: true });
       showToast('Configurações salvas com sucesso');
     } catch (err) {
