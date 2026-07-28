@@ -1386,6 +1386,19 @@ a {
   cursor: help;
 }
 
+.lightbox__colors-label {
+  font-size: 0.7rem;
+  color: var(--color-text-light);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  margin-bottom: 8px;
+}
+
+.lightbox__colors-dots {
+  display: flex;
+  gap: 8px;
+}
+
 .lightbox__desc {
   font-size: 0.95rem;
   color: var(--color-text-secondary);

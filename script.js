@@ -228,7 +228,7 @@ function initLightbox() {
     priceEl.textContent = preco ? `R$ ${parseFloat(preco).toFixed(2).replace('.', ',')}` : '';
     const cores = JSON.parse(card.dataset.cores || '[]');
     colorsEl.innerHTML = cores.length
-      ? cores.map(hex => `<span class="color-dot" style="background:${hex}" title="${colorMap[hex] || ''}"></span>`).join('')
+      ? `<div class="lightbox__colors-label">Cores Disponíveis</div><div class="lightbox__colors-dots">${cores.map(hex => `<span class="color-dot" style="background:${hex}" title="${colorMap[hex] || ''}"></span>`).join('')}</div>`
       : '';
     descEl.textContent = descricao;
     whatsappBtn.href = waLink;
